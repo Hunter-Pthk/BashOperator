@@ -30,7 +30,14 @@ dag=DAG(
 unzip = BashOperator(
     task_id='unzip',
     bash_command='tar -xzvf /opt/airflow/dags/finalassignment/tolldata.tgz -C /opt/airflow/dags/finalassignment/staging',
-    dag=dag
+    dag=dag,
 )
 
-unzip
+# extract task
+extract_data_from_csv = BashOperator(
+    task_id='extract',
+    bash_command="cut -d ',' -f 1,2,3,4 /opt/airflow/dags/finalassignment/staging/vehicle-data.csv > /opt/airflow/dags/output/csv_data.csv",
+    dag=dag,
+)
+
+unzip >> extract_data_from_csv
