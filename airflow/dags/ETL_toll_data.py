@@ -33,11 +33,18 @@ unzip = BashOperator(
     dag=dag,
 )
 
-# extract task
+# extract from csv task
 extract_data_from_csv = BashOperator(
-    task_id='extract',
+    task_id='extract_from_csv',
     bash_command="cut -d ',' -f 1,2,3,4 /opt/airflow/dags/finalassignment/staging/vehicle-data.csv > /opt/airflow/dags/output/csv_data.csv",
     dag=dag,
 )
 
-unzip >> extract_data_from_csv
+# extract from tsv file task
+extract_data_from_tsv = BashOperator(
+    task_id='extract_from_tsv',
+    bash_command="cut -f 5,6,7 /opt/airflow/dags/finalassignment/staging/tollplaza-data.tsv > /opt/airflow/dags/output/tsv_data.csv",
+    dag=dag,
+)
+
+unzip >> extract_data_from_csv >> extract_data_from_tsv
