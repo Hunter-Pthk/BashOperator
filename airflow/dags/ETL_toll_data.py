@@ -47,9 +47,17 @@ extract_data_from_tsv = BashOperator(
     dag=dag,
 )
 
+# extract from fixed width file
 extract_data_from_fixed_width = BashOperator(
     task_id = 'extract_from_fixed_width',
     bash_command="awk '{print $10, $11}' /opt/airflow/dags/finalassignment/staging/payment-data.txt > /opt/airflow/dags/output/fixed_width_data.csv",
     dag=dag,
 )
-unzip >> extract_data_from_csv >> extract_data_from_tsv >> extract_data_from_fixed_width
+
+# combining into single csv file
+consolidate_data = BashOperator(
+    task_id = 'consolidate_data',
+    bash_command="paste -d, /opt/airflow/dags/output/csv_data.csv /opt/airflow/dags/output/tsv_data.csv /opt/airflow/dags/output/fixed_width_data.csv > /opt/airflow/dags/output/extracted_data.csv",
+    dag=dag,
+)
+unzip >> extract_data_from_csv >> extract_data_from_tsv >> extract_data_from_fixed_width >> consolidate_data
