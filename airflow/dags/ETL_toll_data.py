@@ -60,4 +60,14 @@ consolidate_data = BashOperator(
     bash_command="paste -d, /opt/airflow/dags/output/csv_data.csv /opt/airflow/dags/output/tsv_data.csv /opt/airflow/dags/output/fixed_width_data.csv > /opt/airflow/dags/output/extracted_data.csv",
     dag=dag,
 )
-unzip >> extract_data_from_csv >> extract_data_from_tsv >> extract_data_from_fixed_width >> consolidate_data
+
+# Transformation of data
+transform_data = BashOperator(
+    task_id="transform_data",
+    bash_command="""  
+    awk -F',' 'NR==0 {print $0; next} {split($0, fields, ","); fields[4] = toupper(fields[4]); print fields[1] "," fields[2] "," fields[3] "," fields[4] "," fields[5]}' /opt/airflow/dags/output/extracted_data.csv > /opt/airflow/dags/finalassignment/staging/transformed_data.csv
+    """,
+    dag=dag,
+)
+
+unzip >> extract_data_from_csv >> extract_data_from_tsv >> extract_data_from_fixed_width >> consolidate_data >> transform_data
